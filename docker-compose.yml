@@ -1,0 +1,31 @@
+version: "3.7"
+services:
+  scale-mamba:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/usr/src/SCALE-MAMBA/
+  scale-mamba-py2:
+    build:
+      context: .
+      dockerfile: py2.Dockerfile
+    # NOTE In order to avoid overwriting generated files such as Player.x a
+	# fine-grained mounting is ncessary.
+	# TODO Investigate whether a more convenient approach is possible.
+    volumes:
+      - ./Auto-Test-Data:/usr/src/SCALE-MAMBA/Auto-Test-Data
+      - ./Cert-Store:/usr/src/SCALE-MAMBA/Cert-Store
+      - ./Circuits:/usr/src/SCALE-MAMBA/Circuits
+      - ./Compiler:/usr/src/SCALE-MAMBA/Compiler
+      - ./Data:/usr/src/SCALE-MAMBA/Data
+      - ./Documentation:/usr/src/SCALE-MAMBA/Documentation
+      - ./Programs:/usr/src/SCALE-MAMBA/Programs
+      - ./Scripts:/usr/src/SCALE-MAMBA/Scripts
+      - ./src:/usr/src/SCALE-MAMBA/src
+      - ./Test:/usr/src/SCALE-MAMBA/Test
+      - ./.clang-format:/usr/src/SCALE-MAMBA/.clang-format
+      - ./compile.py:/usr/src/SCALE-MAMBA/compile.py
+      - ./CONFIG:/usr/src/SCALE-MAMBA/CONFIG
+      - ./Makefile:/usr/src/SCALE-MAMBA/Makefile
+      - ./run_tests.sh:/usr/src/SCALE-MAMBA/run_tests.sh
