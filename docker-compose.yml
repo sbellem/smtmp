@@ -1,18 +1,30 @@
 version: "3.7"
 services:
-  scale-mamba:
+  scale-mamba-docs:
     build:
       context: .
       dockerfile: Dockerfile
     volumes:
       - .:/usr/src/SCALE-MAMBA/
+  view-compiler-docs:
+    image: nginx
+    ports:
+      - '57123:80'
+    volumes:
+      - ./Documentation/Compiler_Documentation:/usr/share/nginx/html
+  view-sphinx-docs:
+    image: nginx
+    ports:
+      - '57124:80'
+    volumes:
+      - ./Documentation/sphinx/_build/html:/usr/share/nginx/html
   scale-mamba-py2:
     build:
       context: .
       dockerfile: py2.Dockerfile
     # NOTE In order to avoid overwriting generated files such as Player.x a
-	# fine-grained mounting is ncessary.
-	# TODO Investigate whether a more convenient approach is possible.
+    # fine-grained mounting is ncessary.
+    # TODO Investigate whether a more convenient approach is possible.
     volumes:
       - ./Auto-Test-Data:/usr/src/SCALE-MAMBA/Auto-Test-Data
       - ./Cert-Store:/usr/src/SCALE-MAMBA/Cert-Store
@@ -29,3 +41,9 @@ services:
       - ./CONFIG:/usr/src/SCALE-MAMBA/CONFIG
       - ./Makefile:/usr/src/SCALE-MAMBA/Makefile
       - ./run_tests.sh:/usr/src/SCALE-MAMBA/run_tests.sh
+  scale-mamba-py3:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/usr/src/SCALE-MAMBA/
