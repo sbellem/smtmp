@@ -1,7 +1,8 @@
 FROM python:2-buster
 
 # dependencies
-RUN apt-get update && apt-get install -y yasm
+RUN apt-get update && apt-get install -y yasm libmpc-dev doxygen psmisc
+RUN pip install --upgrade pip gmpy2 networkx
 
 ENV DEPS_HOME /usr/src/
 
@@ -56,5 +57,5 @@ COPY CONFIG CONFIG.mine
 RUN echo "ROOT = ${MPC_HOME}" >> CONFIG.mine
 RUN echo "OSSL = ${DEPS_HOME}/openssl" >> CONFIG.mine
 
-# build
-RUN make progs
+# build (progs test doc)
+RUN make

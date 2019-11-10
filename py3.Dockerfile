@@ -1,4 +1,4 @@
-FROM python:2-buster
+FROM python:buster
 
 # dependencies
 RUN apt-get update && apt-get install -y yasm
@@ -57,7 +57,7 @@ RUN echo "ROOT = ${MPC_HOME}" >> CONFIG.mine
 RUN echo "OSSL = ${DEPS_HOME}/openssl" >> CONFIG.mine
 
 # build
-RUN make progs
+RUN make prog test
 
 # Compiler dependencies
 RUN apt-get update && apt-get install -y libmpc-dev
