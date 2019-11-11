@@ -13,10 +13,18 @@ env:
 
 jobs:
   include:
-    - stage: build docker image
+    - stage: build deps image
+      script:
+      - docker build --no-cache -t scale-mamba-deps -f deps.Dockerfile .
+      - echo "$DOCKER_USERNAME"
+      - echo "$DOCKER_PASSWORD" | docker login --username "$DOCKER_USERNAME" --password-stdin
+      - docker tag scale-mamba-deps $DOCKER_USERNAME/scale-mamba-deps
+      - docker push $DOCKER_USERNAME/scale-mamba-deps
+    - stage: build image
       script:
       - docker build --no-cache -t scale-mamba -f py2.Dockerfile .
-      - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+      - echo "$DOCKER_USERNAME"
+      - echo "$DOCKER_PASSWORD" | docker login --username "$DOCKER_USERNAME" --password-stdin
       - docker tag scale-mamba $DOCKER_USERNAME/scale-mamba
       - docker push $DOCKER_USERNAME/scale-mamba
     - stage: test
@@ -24,6 +32,8 @@ jobs:
       env: TEST_SET=1
       script:
       - ./before_test.sh
-      - docker run --rm scale-mamba sh .ci/run_tests.sh
+      # TODO: re-use an image that has make test already done
+      - docker run --rm $DOCKER_USERNAME/scale-mamba make test
+      - docker run --rm $DOCKER_USERNAME/scale-mamba sh .ci/run_tests.sh
     - stage: doc
-      script: docker run --rm scale-mamba make doc
+      script: docker run --rm $DOCKER_USERNAME/scale-mamba make doc
