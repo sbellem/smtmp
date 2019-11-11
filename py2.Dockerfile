@@ -10,3 +10,4 @@ RUN echo "OSSL = ${DEPS_HOME}/openssl" >> CONFIG.mine
 
 # build
 RUN make progs
+RUN make test
