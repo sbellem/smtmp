@@ -57,5 +57,5 @@ COPY CONFIG CONFIG.mine
 RUN echo "ROOT = ${MPC_HOME}" >> CONFIG.mine
 RUN echo "OSSL = ${DEPS_HOME}/openssl" >> CONFIG.mine
 
-# build (progs test doc)
-RUN make
+# build
+RUN make progs

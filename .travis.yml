@@ -1,0 +1,16 @@
+os: linux
+dist: bionic
+language: python
+python: 3.8
+sudo: true
+
+services:
+  - docker
+
+matrix:
+  include:
+    - env: BUILD=tests
+    - env: BUILD=docs
+
+install:  .ci/install.sh
+script: .ci/script.sh
