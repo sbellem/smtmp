@@ -13,13 +13,17 @@ env:
 
 jobs:
   include:
-    - stage: build deps image
-      script:
-      - docker build --no-cache -t scale-mamba-deps -f deps.Dockerfile .
-      - echo "$DOCKER_USERNAME"
-      - echo "$DOCKER_PASSWORD" | docker login --username "$DOCKER_USERNAME" --password-stdin
-      - docker tag scale-mamba-deps $DOCKER_USERNAME/scale-mamba-deps
-      - docker push $DOCKER_USERNAME/scale-mamba-deps
+    # TODO: Only perform this step if the file deps.Dockerfile changed.
+    # https://docs.travis-ci.com/user/conditional-builds-stages-jobs/#conditional-stages
+    # https://stackoverflow.com/a/38550849/2769475
+    # https://docs.travis-ci.com/user/environment-variables/#default-environment-variables
+    #- stage: build deps image
+    #  script:
+    #  - docker build --no-cache -t scale-mamba-deps -f deps.Dockerfile .
+    #  - echo "$DOCKER_USERNAME"
+    #  - echo "$DOCKER_PASSWORD" | docker login --username "$DOCKER_USERNAME" --password-stdin
+    #  - docker tag scale-mamba-deps $DOCKER_USERNAME/scale-mamba-deps
+    #  - docker push $DOCKER_USERNAME/scale-mamba-deps
     - stage: build image
       script:
       - docker build --no-cache -t scale-mamba -f py2.Dockerfile .
