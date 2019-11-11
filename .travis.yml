@@ -3,14 +3,27 @@ dist: bionic
 language: python
 python: 3.8
 sudo: true
-
 services:
   - docker
 
-matrix:
-  include:
-    - env: BUILD=tests
-    - env: BUILD=docs
+env:
+  global:
+  - secure: MPy6YfA5xb55tXCfIAdmoN/gsbELLtbgejFpnohXP86OcdGoyDJ6UFMKsCb36C/CWB44eVnq0hamPVNzGXTIEoWAsvtNISnwRc+LwhYgCZ/xuapjhNelPt25bJVmhEMvIO+THWH1pTybjJ2y8sxYFEkibN87L7yEU2ESwiJQMuX/g5TDQ1fb1EJh3t45F/pt8Alv61tZW4e3IqMQJaoVsXJDtRa9kCj5DgjpFiEIDIPkPw+uI4wE8eZuURxxs0jTBfQNoybCW/82HwrPvDTMdFqbamTpUc9P1FfbM39I0xRKNiTjGYAl22tSCdBU1uP6DE2/NVPDEui68zBqfP+/oo9IHKr24okn69RFraFmHkLVJAS/OL35jONL+o5Y90lJmdIUidSyWvEhJpo1f6N0+HUvHBsYVTdGUMaqGpvCpIAy4+vzAwGC5L/BuHajFXofEgraMf1VZBF7vX7aP2MOVR0jxloQI/IOYXlxVh9vPk761qMH3n8sMqGidWDKn6WWzeK+u09VABMb7DPGi9Dh1XnNi/Fupj8EsWNNVkfEcdebxFQYoEV5wt8l4bEB4z7s3H5tEN8UXrXag/OKTkJRCUSMBZ2JwsOAviJHVBlfCG59lTJruO603z/aXcrRyuEnbTGHsJ1ygFrghA/xy48LHIL5JIbCAvnAbPSJYym0IUc=
+  - secure: plMJfcTadyZFaPZGT85dyJZ6Myan1hsLN39oRvpyoGRTLqzzANiNT23XOcvalPXBeU2Moe84V40W5l3eI/TqBGvtza1e+bzwBEo2JR+LI3eI8RM1OFvC36fv05YO4ZOR2b/qUAmQvkGz+PLAr3YxHcyS00Y1N7Lt0uG80xc2g1fKZgBGfrO9pxJpO8dgBlzWNTr652AAbGN1DdKtTNiXUCE7sDFIFx+n3RXA398hw4pT/ztQIigDuBaTBiK81kbDQfbwitWiP6L/4TCtGN3jrN/+svm9irxCoVmh9qdRViFXCdXik7uFRQSztIMsggI3rD5AzKDveExRRG+joKoPHJdwS043cSw6KKMrpEqlkoJ0j9UG30Q+2KqDLhxGFtLpacy6Eut5WagXdJAvo6KjbcdodhmOjSRjduB3x2/I+MzNStsJzYWPETJWYqrZV1UWt/ug2BntTUKjKvWuPyMP4+7DfbrrDXoh0DkDnZd3iPyFQiOdJOZQZWIlCLjkQc9T7COeyNzZURL8p4Ad+RM9rmXQBf4S93khyjtXBcN0zzUdvbIcuK/54Q9hzBqWQQHmG9/3Ih9yPgrC3L50D9vN4EgQzyvloE/T6Ft+HkTCDwZO9YJ6Uz0IxLTnPf7hcQ6NQmgh43tSbpDZvzqs6AZ1s1BjojaSZB5I6Tdo3S+SGgc=
 
-install:  .ci/install.sh
-script: .ci/script.sh
+jobs:
+  include:
+    - stage: build docker image
+      script:
+      - docker build --no-cache -t scale-mamba -f py2.Dockerfile .
+      - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+      - docker tag scale-mamba $DOCKER_USERNAME/scale-mamba
+      - docker push $DOCKER_USERNAME/scale-mamba
+    - stage: test
+      name: test set 1
+      env: TEST_SET=1
+      script:
+      - ./before_test.sh
+      - docker run --rm scale-mamba sh .ci/run_tests.sh
+    - stage: doc
+      script: docker run --rm scale-mamba make doc
