@@ -11,3 +11,6 @@ RUN echo "OSSL = ${DEPS_HOME}/openssl" >> CONFIG.mine
 # build
 RUN make progs
 RUN make test
+
+# For sphinx-based docs
+RUN pip install --upgrade pip sphinx sphinx_rtd_theme

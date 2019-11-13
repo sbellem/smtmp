@@ -25,13 +25,13 @@ services:
     # NOTE In order to avoid overwriting generated files such as Player.x a
     # fine-grained mounting is ncessary.
     # TODO Investigate whether a more convenient approach is possible.
-    #volumes:
+    volumes:
     #  - ./Auto-Test-Data:/usr/src/SCALE-MAMBA/Auto-Test-Data
     #  - ./Cert-Store:/usr/src/SCALE-MAMBA/Cert-Store
     #  - ./Circuits:/usr/src/SCALE-MAMBA/Circuits
     #  - ./Compiler:/usr/src/SCALE-MAMBA/Compiler
     #  - ./Data:/usr/src/SCALE-MAMBA/Data
-    #  - ./Documentation:/usr/src/SCALE-MAMBA/Documentation
+       - ./Documentation:/usr/src/SCALE-MAMBA/Documentation
     #  - ./Programs:/usr/src/SCALE-MAMBA/Programs
     #  - ./Scripts:/usr/src/SCALE-MAMBA/Scripts
     #  - ./src:/usr/src/SCALE-MAMBA/src
