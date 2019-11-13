@@ -1,11 +1,11 @@
 version: "3.7"
 services:
-  scale-mamba-docs:
+  build-docs:
     build:
       context: .
       dockerfile: docs.Dockerfile
     volumes:
-      - .:/usr/src/SCALE-MAMBA/
+      - ./Documentation:/usr/src/SCALE-MAMBA/Documentation
   view-compiler-docs:
     image: nginx
     ports:

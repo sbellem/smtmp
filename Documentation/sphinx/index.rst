@@ -8,7 +8,6 @@ SCALE-MAMBA
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
 
    intro
    install
