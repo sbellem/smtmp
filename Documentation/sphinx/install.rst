@@ -242,20 +242,163 @@ the offline phase (*currently*) only supports *Maurer*'s multiplication method
 This will be changed in future releases to also support the new offline method from
 :cite:`SW18`.
 
-.. .. bibliography:: ../SCALE.bib
-
 Replicated Secret Sharing
 """""""""""""""""""""""""
+For Replicated sharing you should enter a complete monotone Q2 access structure.
+There are three options to do this, 
+
+* As a set of maximally unqualified sets;
+* As a set of minimally qualified sets;
+* As a simple threshold system.
+
+If the first (resp. second) option is selected, then any set that is neither 
+a superset nor a subset of a set provided as input will be assumed qualified
+(resp. unqualified).
+The last option is really for testing, as most 
+threshold systems implemented using Replicated secret-sharing will be
+less efficient than using Shamir.  
+Specifying either the first or second option and providing input
+results in the program computing all of the qualified and unqualified
+sets in the system.  
+
+For Replicated secret-sharing you
+can also decide what type of offline phase you want: one based on
+*Maurer*'s multiplication method :cite:`Maurer`, 
+or one based on our *Reduced* communication protocols :cite:`KRSW`.
+
+Suppose we want to input the four-party Q2 access structure given by
+
+.. math:: \Gamma^- = \{\{P_1, P_2\}, \{P_1, P_3\}, \{P_1, P_4\}, \{P_2, P_3, P_4\}\}
+
+and
+
+.. math:: \Delta^+ = \{\{P_1\}, \{P_2, P_3\}, \{P_2, P_4\}, \{P_3, P_4\}\}.
+
+We can express this example in the following two ways:
+
+.. code-block:: text
+   
+   4 parties, maximally unqualified
+           1 0 0 0
+           0 1 1 0
+           0 1 0 1
+           0 0 1 1
+
+or as
+
+.. code-block:: text
+   
+   4 parties, minimally qualified
+           1 1 0 0
+           1 0 1 0
+           1 0 0 1
+           0 1 1 1
+
+As a second example with six parties with a more complex
+access structure for our Reduced Communication protocol consider:
+
+.. math::
+
+   \Gamma^- = \{\{P_1, P_6\}, \{P_2, P_5\}, \{P_3, P_4\}, \{P_1, P_2, P_3\},
+               \{P_1, P_4, P_5\}, \{P_2, P_4, P_6\}, \{P_3, P_5, P_6\}\}
+
+and
+
+.. math::
+
+   \Delta^+ = \{\{P_1, P_2, P_4\}, \{P_1, P_3, P_5\},
+               \{P_2, P_3, P_6\}, \{P_4, P_5, P_6\}\}.
+
+Each party is in a different pair of sets.  We can represent it via:
+
+.. code-block:: text
+   
+   6 parties, maximally unqualified sets
+           1 1 0 1 0 0
+           1 0 1 0 1 0
+           0 1 1 0 0 1
+           0 0 0 1 1 1
 
 Q2-MSP Programs
 """""""""""""""
+A final way of entering a Q2 access structure is via a MSP, or equivalently,
+via the matrix which defines an underlying Q2 LSSS.
+For :math:`n` parties we define the number of shares each party has to be 
+:math:`n_i`, and the dimension of the MSP to be :math:`k`. The MSP is then given
+by a :math:`(\sum n_i) \times k` matrix :math:`G`.
+The first :math:`n_1` rows of :math:`G` are associated with player one, the
+next :math:`n_2` rows with player two and so on.
+A secret sharing of a value :math:`s` is given by the vector of values
+
+.. math:: \mathbf{s} = G \cdot \mathbf{k}
+
+where :math:`\mathbf{k} = (k_i) \in \mathbb{F}_p^k` and :math:`\sum k_i =s`.
+A subset of parties :math:`A` is qualified if the span of the rows they control
+contain the vector :math:`(1,\ldots,1) \in \mathbb{F}_p^k`.
+
+This secret sharing scheme can be associated with a monotone
+access structure, and we call this scheme Q2 if the associated
+access structure is Q2.
+However, it is not the case (unlike for Shamir and Replicated sharing)
+that the Q2 MSP is itself multiplicative (which is crucial for
+our MPC protocols).
+Thus if you enter a Q2 MSP which is **not** multiplicative, we
+will automatically extend this for you into an equivalent multiplicative MSP
+using the method of :cite:`CDM00`.
+
+As in the Shamir setting we use an online phase using the reduced communication
+protocols of :cite:`KRSW`; 
+the offline phase (*currently*) only supports *Maurer*'s multiplication method
+:cite:`Maurer`.
+This will be changed in future releases to also support the new offline method from
+:cite:`SW18`.
+
+In the file :file:`Auto-Test-Data/README.txt` we provide some examples
+of MSPs. If we take the MSP for Shamir (say) over three parties with threshold
+one we obtain the matrix
+
+.. math::
+   
+   G = \left( \begin{array}{cc}
+      1 & 2 \\ 1 & 3 \\ 1 & 4 
+       \end{array} \right).
+
+This is slightly different from the usual Shamir generating matrix
+as we assume the target vector is :math:`(1,1)` and not :math:`(1,0)`
+as is often the case in Shamir sharing.
 
 Conversion Circuit
 ^^^^^^^^^^^^^^^^^^
+Here, as most users will not have a VHDL compiler etc, we provide
+a generic 512 bit conversion circuit for turning an LSSS sharing
+into a GC sharing.
+This needs to be specialized to which ever prime :math:`p` has been
+selected above. To do this we use some C-code which specializes the
+generic 512 bit circuit for this specific prime chosen, and then tries
+to simplify the resulting circuit. This simplification is rather
+naive, and can take a long time, but usually results in a circuit ten percent
+less in size than the original (in terms of the all important AND gates).
+One can modify how long is spent in the simplification by
+changing a variable in :file:`config.h`.
+
 
 .. _subsec-idiot:
 
 Idiot's Installation
 --------------------
+To install an installation of the three party Shamir based
+variant, with default certificates and all parties running
+on local host.
+Execute the following commands:
+
+.. code-block:: shell
+
+   cp Auto-Test-Data/Cert-Store/* Cert-Store/
+   cp Auto-Test-Data/1/* Data/
+
+You can play with writing your own MAMBA programs and
+running them on the same local host (via IP address
+127.0.0.1).
+
 
 .. [#] In all other cases you select the prime modulus for the LSSS directly at this point.
