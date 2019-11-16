@@ -124,7 +124,7 @@ triples for GC operations, so called aANDs.
 
 \end{picture}
 \end{center}
-\caption{Pictorial View of a Players Threads: With Two
+\caption{Pictorial View of a Player's Threads: With Two
 Online Threads and Two FHE Factory Threads}
 \label{fig:threads}
 \end{figure}
@@ -226,7 +226,7 @@ With Two Online Threads}
 \label{fig:memory}
 \end{figure}
 
-\subsection{Byte-code instructions}
+\subsection{Byte-code Instructions}
 
 The design of the byte-code instructions within a tape are influenced
 by the RISC design strategy, coming in only a few basic
@@ -334,7 +334,7 @@ These are needed as the internal mod $p$ representation
 of clear data is in Montgomery representation.
 To convert between $\modp$ and $\modn$ types, we have the following instructions: \verb+CONVSINTSREG+, \verb+CONVREGSREG+ and \verb+CONVSREGSINT+. These conversions are necessary to allow a smooth transition between the secret sharing and the GC engines.
 
-\subsection{Preprocessing loading instructions}
+\subsection{Preprocessing Loading Instructions}
 The instructions for loading data from the preprocessing phase
 are denoted \verb+TRIPLE+, \verb+SQUARE+, \verb+BIT+,
 and they take as argument three, two, and one secret registers 
@@ -344,7 +344,7 @@ offline threads and loaded into the registers given as arguments.
 There is also an instruction \verb+DABIT+ to load a doubly authenticated
 bit into a \verb|sint| and an \verb|sbit| register.
 
-\subsection{Open instructions}
+\subsection{Open Instructions}
 There are tailor-made approaches to open registers depending on whether they are $\modp$ or $\modn$. We detail both in this section. 
 
 \subsubsection{Instructions for mod $p$ registers}
@@ -373,7 +373,7 @@ this).
 When operating on $\modn$, there are two register types that need to be open. In that sense we have a simplified process with 2 instructions, one for each type, namely \verb+OPENSINT+ for \verb+sregint+ and \verb+OPENSBIT+ for \verb|sbit|.
 These execute the conversion routines using \verb+daBits+ from \cite{daBitPaper}.
 
-\subsection{Threading tools}
+\subsection{Threading Tools}
 Various special instructions are provided to ease the workload when writing
 programs that use multiple tapes. 
 \begin{itemize}
@@ -509,7 +509,7 @@ These byte-codes are
     PRINT_FIX.
 \end{verbatim}
 
-\subsection{Data input and output}
+\subsection{Data Input and Output}
 This is entirely dealt with in the later Chapter on IO.
 The associated byte-codes are
 \begin{verbatim}
@@ -524,7 +524,7 @@ The associated byte-codes are
 Branching is supported by the following instructions
  \verb+JMP+,
     \verb+JMPNZ+,
-    \verb+JMPEQZ+,
+    \verb+JMPEQZ+.
 
 \subsection{Call/Return}
 Call and return to subroutines is supported by the following

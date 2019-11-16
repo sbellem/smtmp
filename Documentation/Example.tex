@@ -85,17 +85,17 @@ execute
 There are a number of switches which can be passed to the
 program \verb+Player.x+; these are
 \begin{itemize}
-\item {\bf -pnb $x$}: Sets the base portnumber to $x$. This by
+\item {\bf -pnb $x$}: Sets the base port number to $x$. This by
 default is equal to 5000. With this setting we use all
-portnumbers in the range $x$ to $x+n-1$,
+port numbers in the range $x$ to $x+n-1$,
 where $n$ is the number of players. 
 \item {\bf -pns $x_1,\ldots,x_n$}: This overides the \verb+pnb+
-option, and sets the listening portnumber for player
+option, and sets the listening port number for player
 $i$ to $x_i$.
 The same arguments must be supplied to each player, otherwise
 the players do not know where to connect to, and if this
 option is used there needs to be precisely $n$ given
-distinct portnumbers.
+distinct port numbers.
 \item {\bf -mem xxxx}: Where xxxx is either \verb+old+
 or \verb+empty+. The default is \verb+empty+.
 See later for what we mean by memory.
