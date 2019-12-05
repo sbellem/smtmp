@@ -26,6 +26,7 @@ services:
     # fine-grained mounting is ncessary.
     # TODO Investigate whether a more convenient approach is possible.
     volumes:
+       - ./.ci:/usr/src/SCALE-MAMBA/.ci
     #  - ./Auto-Test-Data:/usr/src/SCALE-MAMBA/Auto-Test-Data
     #  - ./Cert-Store:/usr/src/SCALE-MAMBA/Cert-Store
     #  - ./Circuits:/usr/src/SCALE-MAMBA/Circuits
@@ -33,7 +34,7 @@ services:
     #  - ./Data:/usr/src/SCALE-MAMBA/Data
        - ./Documentation:/usr/src/SCALE-MAMBA/Documentation
     #  - ./Programs:/usr/src/SCALE-MAMBA/Programs
-    #  - ./Scripts:/usr/src/SCALE-MAMBA/Scripts
+       - ./Scripts:/usr/src/SCALE-MAMBA/Scripts
     #  - ./src:/usr/src/SCALE-MAMBA/src
     #  - ./Test:/usr/src/SCALE-MAMBA/Test
     #  - ./.clang-format:/usr/src/SCALE-MAMBA/.clang-format
