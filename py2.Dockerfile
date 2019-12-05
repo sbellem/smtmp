@@ -14,3 +14,6 @@ RUN make test
 
 # For sphinx-based docs
 RUN pip install --upgrade pip sphinx sphinx_rtd_theme
+
+# For development
+RUN pip install --upgrade ipython
