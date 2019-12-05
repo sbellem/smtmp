@@ -21,11 +21,97 @@ to be handled at a higher level.
 
 Overview
 --------
+The core of the virtual machine is a set of threads, which
+execute sequences of instructions encoded in a byte-code format.
+Files of byte-code instructions are referred to as *tapes*,
+and each thread processes a single tape at a time.
+Each of these execution threads has a pairwise point-to-point
+communication channels with the associated threads in all
+other players' runtime environments.
+These communication channels, like all communication channels
+in SCALE, are secured via TLS.
+The threads actually have three channels to the corresponding
+thread in the other parties; we call these different channels
+"connections".
+For the online thread "connection" zero is used for standard
+opening of shared data, whereas "connection" one is used for
+private input and output.
+Connection two is used for all data related to aBits, aANDs
+and garbled circuit computations.
+This division into different connections is to avoid conflicts beween
+the three usages (for example a ``PRIVATE_OUTPUT`` coming between
+a ``STARTOPEN`` and a ``STOPOPEN``).
+Each online thread is supported by four other threads
+performing the offline phase, each again with pairwise
+TLS secured point-to-point channels. Currently the offline
+threads only communicate on "connection" zero.
+A single offline thread produces authenticated bits, aBits,
+by OT-extension, whilst another produced authenticated
+triples for GC operations, so called aANDs.
+
+.. _fig-threads:
 
 .. figure:: _static/threads.png
 
    Pictorial View of a Players Threads:
    With Two Online Threads and Two FHE Factory Threads
+
+In the case of Full Threshold secret sharing another set of
+threads act as a factory for FHE ciphertexts. Actively securing
+production of such ciphertexts is expensive, requiring complex
+zero-knowledge proofs (see Section :ref:`sec-fhe`). Thus
+the FHE-Factory threads locates this production into a
+single location. The number of FHE Factory threads can be
+controlled at run-time by the user.
+See Figure :ref:`fig-threads` for an pictorial overview.
+
+In addition to byte-code files, each program to be run must
+have a *schedule*. This is a file detailing the execution
+order of the tapes, and which tapes are to be run in parallel.
+There is no limit to the number of concurrent tapes specified in
+a schedule, but in practice one will be restricted by the number
+of cores.
+The schedule file allows you to schedule concurrent threads
+of execution, it also defines the maximum number of threads
+a given run-time system will support. It also defines
+the specific byte-code sequences which are pre-loaded
+into the system.
+One can also programmatically control execution of new
+threads using the byte-code instructions ``RUN_TAPE`` and
+``JOIN_TAPE`` (see below for details).
+The schedule is run by the *control thread*. This thread takes the
+tapes to be executed at a given step in the schedule, passes them to
+the execution threads, and waits for the threads to finish their
+execution before proceeding to the next stage of the schedule.
+
+Communication between threads is handled by a global *main memory*,
+which all threads have access to. To avoid unnecessary stalls there is
+no locking mechanism provided to the memory. So if two simultaneously
+running threads execute a read and a write, or two writes, to the same
+memory location then the result is undefined since it is not specified
+as to which order the instructions will be performed in.
+Memory comes in four forms, corresponding to ``sint``, ``cint``,
+``regint`` and ``sregint`` data types. There is no memory for the
+``sbit`` datatype, as it is meant only for temporary storage of data.
+
+Each execution thread also has its own local clear and secret
+registers, to hold temporary variables. To avoid confusion with the
+main memory we refer to these as registers.
+The values of registers are not assumed to be maintained between an
+execution thread running one tape and the next tape, so all passing of
+values between two sequential tape executions must be done by reading
+and writing to the virtual machine's main memory. This holds even if
+the two consequtive byte-code sequences run  on the same "core".
+A pictorial representation of the memory and registers is given in
+Figure :ref:`fig-memory`.
+
+.. _fig-memory:
+
+.. figure:: _static/memory.png
+
+   Pictorial Representation of Memory and Registers:
+   With Two Online Threads
+
 
 
 Byte-code Instructions
@@ -40,6 +126,59 @@ in parallel as in traditional SIMD architectures, but exist to provide
 a compact way of executing multiple instructions within a thread,
 saving on memory and code size.
 
+A complete set of byte-codes and descriptions is given in the html file
+in::
+
+   $(HOME)/Documentation/Compiler_Documentation/index.html
+
+under the class ``instructions``.
+
+Each encoded instruction begins with 32 bits reserved for the opcode.
+The right-most nine bits specify the instruction to be executed [#]_
+The remaining 23 bits are used for vector instructions, specifying the
+size of the vector of registers being operated on. The remainder of an
+instruction encoding consists of 4-byte operands, which correspond to
+either indices of registers or immediate integer values.
+
+.. note:: Vector instructions are not listed in the ``html`` document
+   above.
+
+   They have the same name as standard instructions, prefixed by 'V',
+   with the opcode created as described above.
+
+The basic syntax used in the above html file is as follows:
+
+c[w]
+   clear register :math:`\bmod \; p`, with the optional suffix ``w`` if
+   the register is written to.
+
+s[w]
+   secret register :math:`\bmod \; p`, and a ``w`` as above.
+
+r[w]
+   64-bit signed integer regint register, clear type
+   :math:`\bmod \; 2^{64}`, and a ``w`` as above.
+
+sr[w]
+   64-bit signed integer secret register :math:`\bmod \; 2^{64}`, and a
+   ``w`` as above.
+
+sb[w]
+   1 bit boolean secret register, and a ``w`` as above.
+
+i
+   32-bit integer signed immediate value.
+
+int
+   64-bit integer unsigned immediate value.
+
+p
+   32-bit number representing a player index.
+
+str
+   A four byte string.
+
+
 Memory Types
 ^^^^^^^^^^^^
 We can divide the memory registers over which we operate in two main
@@ -53,9 +192,54 @@ and are denoted by ``sr[i]`` and ``r[i]``.
 
 Load, Store and Memory Instructions
 -----------------------------------
+Being a RISC design the main operations are load/store operations,
+moving operations, and memory operations. Each type of instructions
+comes in either clear data, share data, or integer data formats. The
+integer data is pure integer arithmetic, say for controlling loops,
+whereas clear data could be either integer arithmetic
+:math:`\bmod \; p` or :math:`\bmod \; 2^{64}`. For the clear values
+:math:`\bmod \; p`, all values represented as integers in the range
+:math:`(-\frac{p-1}{2}, \dots, \frac{p-1}{2}]`. Whereas for the 64-bits
+clear register values, all of them are represented in the range
+:math:`(-2^{63}), \dots, 2^{63})`. There is a stack of ``regint``
+values which is mainly intended for loop control. Finally, there are
+different set of memory instructions depending on whether they manage
+:math:`\bmod \; p` or :math:`\bmod \; 2^{64}` registers, we enumerate
+them as follows.
+
+Basic Load/Store/Move :math:`\bmod \; p` Instructions
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. code-block:: asm
+
+   LDI
+   LDI
+   LDSI
+   MOVC
+   MOVS
+
+Basic Load/Store/Move :math:`\bmod \; 2^{64}` Instructions
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+We have 2 basic extra instructions for secret types ``LDSIN``,
+``MOVSINT``; and two for clear registers ``LDIN``, ``MOVINT``.
+
+
+Loading to/from Memory in :math:`\bmod \; p`
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Loading to/from Memory in :math:`\bmod \; 2^{64}`
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Accessing the integer stack
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Data Conversion
+^^^^^^^^^^^^^^^
+
 
 Preprocessing Loading Instructions
 ----------------------------------
+
 
 Open Instructions
 -----------------
@@ -119,3 +303,10 @@ User Defined RunTime Extensions
 
 Other Commands
 --------------
+
+
+
+.. rubric:: Footnotes
+
+.. [#] The choice of nine is to enable extension of the system later,
+       as eight is probably going to be too small.
