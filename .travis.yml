@@ -32,6 +32,6 @@ jobs:
     - stage: test
       name: test set 1
       env: TEST_SET=1
-      script: docker run --rm --env TEST_SET $DOCKER_USERNAME/scale-mamba:$COMMIT sh .ci/run_tests.sh
+      script: travis_wait 30 docker run --rm --env TEST_SET $DOCKER_USERNAME/scale-mamba:$COMMIT sh .ci/run_tests.sh
     - stage: doc
       script: docker run --rm $DOCKER_USERNAME/scale-mamba:$COMMIT make doc
