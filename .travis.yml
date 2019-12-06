@@ -24,6 +24,7 @@ jobs:
     #  - docker tag scale-mamba-deps $DOCKER_USERNAME/scale-mamba-deps
     #  - docker push $DOCKER_USERNAME/scale-mamba-deps
     - stage: build image
+      install: skip
       script:
       - docker build --no-cache -t scale-mamba -f py2.Dockerfile .
       - echo "$DOCKER_PASSWORD" | docker login --username "$DOCKER_USERNAME" --password-stdin
@@ -32,6 +33,8 @@ jobs:
     - stage: test
       name: test set 1
       env: TEST_SET=1
-      script: travis_wait 30 docker run --rm --env TEST_SET $DOCKER_USERNAME/scale-mamba:$COMMIT sh .ci/run_tests.sh
+      install: skip
+      script: docker run --rm --env TEST_SET $DOCKER_USERNAME/scale-mamba:$COMMIT sh .ci/run_tests.sh
     - stage: doc
+      install: skip
       script: docker run --rm $DOCKER_USERNAME/scale-mamba:$COMMIT make doc
