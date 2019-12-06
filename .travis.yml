@@ -8,8 +8,10 @@ services:
 env:
   global:
   - COMMIT=${TRAVIS_COMMIT::8}
+  - TEST_SET=1
   - secure: "Ji3Do+UQhExO46IBKjnAQj0p7EkQKfONyLR55AaF29CvCRDkK0dqsjgfD8QNbInzhTF+sZVTMALkzOOv4PHT3EKpZWHCynunbbiXnN6cs5JHUnEALvPqjDd0sMl1Bs7/bsti7rYtULDGSVn5SbkYP+QlqlmkJd+Fd/+0hFnsW3f8eHqxFwpfdPLN2jXmoHYigYUpM6SrB1L7b2hzEUUM6coEqqwu9bbNF1K5v2DeJWS8/3w7NFLbWJQgVWbBjo6RJWqPC8KDtcvKT6sZUaDUDTmgLMe/RuRgpYHee6RmsgXMMfshYUx6+tsr8CvWJ4BBqEpobsGUgsr7H8t6qqGF4SfnIF8dTr0efWzxOxDBrcNC5dLv8PiBtoABbj/6N4dZBmjOcQuE4clIM+kXLnfCBU5WWB4ayZAXOmXE7/ANDzIfIdMCcZV6TTbX9+wcCIOPyzFcjNaXJXbYmDRjMqm94Zi9uW4Ufx6kCgHp2Cy5N9RVehboBQUPvAmpnSCi+2DIQ9pcM2HNrtDcRGKGdcXV19R3nBrgBE/IigltCjO9W/I6JaahRL/W0Dy4hT4UkPAmVEJyprdVh/94Rz3TR+0XXNp0dKcr1z9m4yYWJPS+JmWHUDaOsxmMQIqFI5u76YyheceS8DpbLcnW5lkjwbN8vvA1uKD/IsHBeIg0i/CDpeA="
   - secure: "rIQ68E/YIqratKbWy0nZfF6TNrVwfb3tfXKiGXRsUsyJiwlpSlOCJciNnEL9Wj++olN5BhWLcfu0EOGPZnGrDiFJvK8wo+TIZtFyofQz3teeWCcOirEDWnlSIIWsCVHtw1x07fZK5Fo3KIY99+OAJxGIlvGT1xt2n4lBnwUQ2pQxgHIUsonKRdS0XyuXF2p1zZr5hNKE3zX0aiifzMilQ1YjrcU70rz607LHDR5Yz8VBl0KCZUKp/yGaVesGYwXa+MWtJRChR5RtElDPaRJo5Uun6QO9uy/TkyDOhv3ecSwC6RS5NBVuWmi7JV2m0nGFghEFI49X5lPYa7SRi6u+bV4lu4pvrLHs9GOjwc3Vvzbpo4t9e3+leeyv1fvz0sGHzFvOURHuqqyYpLTeyXt6E12T7TPbmRrg2+5TNWo24vD9JQ6Zom008Vm+H/1+5nWxiQ6AtX/1YR5ZFUc5RpY8VT1QMg3XhTVsawsJrgpsFqC4bS2HN1FkV6wHESZsvP4kIwEJW6B2KC0oIOf5QpBBE8bxM5WO70ay8OtvPujhPGF0G5i5c3ZEED1F0GXc++bEK9bTfEG6c0S3cZlKKL3pXcyhtBngFoDj6IMIgRA/SSsvwV6xA7irwvfjhZOtwNqjmYm1TyVfg9rL2XneCWkmix4HClDQfjg9dFPKMEhlK0g="
+
 jobs:
   include:
     # TODO: Only perform this step if the file deps.Dockerfile changed.
@@ -23,18 +25,69 @@ jobs:
     #  - echo "$DOCKER_PASSWORD" | docker login --username "$DOCKER_USERNAME" --password-stdin
     #  - docker tag scale-mamba-deps $DOCKER_USERNAME/scale-mamba-deps
     #  - docker push $DOCKER_USERNAME/scale-mamba-deps
-    - stage: build image
+    - stage: Build image
       install: skip
       script:
       - docker build --no-cache -t scale-mamba -f py2.Dockerfile .
       - echo "$DOCKER_PASSWORD" | docker login --username "$DOCKER_USERNAME" --password-stdin
       - docker tag scale-mamba $DOCKER_USERNAME/scale-mamba:$COMMIT
       - docker push $DOCKER_USERNAME/scale-mamba:$COMMIT
-    - stage: test
-      name: test set 1
-      env: TEST_SET=1
+    - stage: Tests
+      name: test set 1, program batch 1
+      env:
+        - PROGRAMS="test_array test_branch test_branching test_comparison test_empty_tape test_flex test_float test_floatingpoint"
       install: skip
-      script: docker run --rm --env TEST_SET $DOCKER_USERNAME/scale-mamba:$COMMIT sh .ci/run_tests.sh
-    - stage: doc
+      script: .ci/test-programs.sh
+      #- name: test set 1, program batch 2
+      #  env:
+      #    - PROGRAMS="test_empty_tape test_flex test_float test_floatingpoint"
+      #  install: skip
+      #  script: .ci/test-programs.sh
+    - name: test set 1, program batch 3
+      env:
+        - PROGRAMS="test_float_sorting test_float_vector test_function"
       install: skip
-      script: docker run --rm $DOCKER_USERNAME/scale-mamba:$COMMIT make doc
+      script: .ci/test-programs.sh
+    - name: test set 1, program batch 4
+      env:
+        - PROGRAMS="test_idle_threads test_lib test_loop test_mem_order"
+      install: skip
+      script: .ci/test-programs.sh
+    - name: test set 1, program batch 5
+      env:
+        - PROGRAMS="test_sregint test_threads test_vector test_sfix"
+      install: skip
+      script: .ci/test-programs.sh
+    - name: test set 1, program batch 6
+      env:
+        - PROGRAMS="test_sqrt test_custom_array test_fix_array test_all"
+      install: skip
+      script: .ci/test-programs.sh
+    - name: test set 1, program failure: "test_count"
+      env:
+        - PROGRAMS="test_count"
+      install: skip
+      script: .ci/test-programs.sh
+    - name: test set 1, program failure: "test_for_range_multithread"
+      env:
+        - PROGRAMS="test_for_range_multithread"
+      install: skip
+      script: .ci/test-programs.sh
+    - name: test set 1, program failure: "test_map_reduce"
+      env:
+        - PROGRAMS="test_map_reduce"
+      install: skip
+      script: .ci/test-programs.sh
+    - name: test set 1, program failure: "test_new_threads"
+      env:
+        - PROGRAMS="test_new_threads"
+      install: skip
+      script: .ci/test-programs.sh
+    - name: test set 1, program failure: "test_math"
+      env:
+        - PROGRAMS="test_math"
+      install: skip
+      script: .ci/test-programs.sh
+      #- stage: Documentation
+      #  install: skip
+      #  script: docker run --rm $DOCKER_USERNAME/scale-mamba:$COMMIT make doc
