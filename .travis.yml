@@ -60,7 +60,7 @@ jobs:
       script: .ci/test-programs.sh
     - name: test set 1, program batch 6
       env:
-        - PROGRAMS="test_sqrt test_math test_custom_array test_fix_array test_all"
+        - PROGRAMS="test_sqrt test_custom_array test_fix_array test_all"
       install: skip
       script: .ci/test-programs.sh
     - name: test set 1, program failure: "test_count"
@@ -83,6 +83,11 @@ jobs:
         - PROGRAMS="test_new_threads"
       install: skip
       script: .ci/test-programs.sh
-    - stage: Documentation
+    - name: test set 1, program failure: "test_math"
+      env:
+        - PROGRAMS="test_math"
       install: skip
-      script: docker run --rm $DOCKER_USERNAME/scale-mamba:$COMMIT make doc
+      script: .ci/test-programs.sh
+      #- stage: Documentation
+      #  install: skip
+      #  script: docker run --rm $DOCKER_USERNAME/scale-mamba:$COMMIT make doc
