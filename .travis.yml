@@ -38,5 +38,6 @@ jobs:
       install: skip
       script: .ci/test-programs.sh
     - stage: Documentation
+      env: BUILD=doc
       install: skip
       script: docker run --rm $DOCKER_USERNAME/scale-mamba:$COMMIT make doc

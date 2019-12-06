@@ -13,7 +13,12 @@ RUN make progs
 RUN make test
 
 # For sphinx-based docs
-RUN pip install --upgrade pip sphinx sphinx_rtd_theme
+ARG BUILD
+RUN if [ "$BUILD" = "doc" ]; \
+        pip install --upgrade pip sphinx sphinx_rtd_theme
+    fi
 
 # For development
-RUN pip install --upgrade ipython
+RUN if [ "$BUILD" = "dev" ]; \
+        pip install --upgrade pip sphinx sphinx_rtd_theme ipython
+    fi
