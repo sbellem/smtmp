@@ -12,13 +12,11 @@ RUN echo "OSSL = ${DEPS_HOME}/openssl" >> CONFIG.mine
 RUN make progs
 RUN make test
 
-# For sphinx-based docs
 ARG BUILD
-RUN if [ "$BUILD" = "doc" ]; \
-        pip install --upgrade pip sphinx sphinx_rtd_theme
-    fi
-
-# For development
-RUN if [ "$BUILD" = "dev" ]; \
-        pip install --upgrade pip sphinx sphinx_rtd_theme ipython
+# For sphinx-based docs or development
+RUN \
+    if [ "$BUILD" = "doc" ]; \
+        then pip install --upgrade pip sphinx sphinx_rtd_theme; \
+    elif [ "$BUILD" = "dev" ]; \
+        then pip install --upgrade pip sphinx sphinx_rtd_theme ipython \
     fi
