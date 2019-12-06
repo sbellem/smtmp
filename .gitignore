@@ -63,3 +63,5 @@ target/
 # sphinx (docs)
 Documentation/sphinx/_build/
 
+# logs
+Scripts/logs
