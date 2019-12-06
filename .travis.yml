@@ -40,27 +40,47 @@ jobs:
       script: .ci/test-programs.sh
     - name: test set 1, program batch 2
       env:
-        - PROGRAMS="test_count test_empty_tape test_flex test_float test_floatingpoint"
+        - PROGRAMS="test_empty_tape test_flex test_float test_floatingpoint"
       install: skip
       script: .ci/test-programs.sh
     - name: test set 1, program batch 3
       env:
-        - PROGRAMS="test_float_sorting test_float_vector test_for_range_multithread test_function"
+        - PROGRAMS="test_float_sorting test_float_vector test_function"
       install: skip
       script: .ci/test-programs.sh
     - name: test set 1, program batch 4
       env:
-        - PROGRAMS="test_idle_threads test_lib test_loop test_map_reduce test_mem_order"
+        - PROGRAMS="test_idle_threads test_lib test_loop test_mem_order"
       install: skip
       script: .ci/test-programs.sh
     - name: test set 1, program batch 5
       env:
-        - PROGRAMS="test_new_threads test_sregint test_threads test_vector test_sfix"
+        - PROGRAMS="test_sregint test_threads test_vector test_sfix"
       install: skip
       script: .ci/test-programs.sh
     - name: test set 1, program batch 6
       env:
         - PROGRAMS="test_sqrt test_math test_custom_array test_fix_array test_all"
+      install: skip
+      script: .ci/test-programs.sh
+    - name: test set 1, program failure: "test_count"
+      env:
+        - PROGRAMS="test_count"
+      install: skip
+      script: .ci/test-programs.sh
+    - name: test set 1, program failure: "test_for_range_multithread"
+      env:
+        - PROGRAMS="test_for_range_multithread"
+      install: skip
+      script: .ci/test-programs.sh
+    - name: test set 1, program failure: "test_map_reduce"
+      env:
+        - PROGRAMS="test_map_reduce"
+      install: skip
+      script: .ci/test-programs.sh
+    - name: test set 1, program failure: "test_new_threads"
+      env:
+        - PROGRAMS="test_new_threads"
       install: skip
       script: .ci/test-programs.sh
     - stage: Documentation
