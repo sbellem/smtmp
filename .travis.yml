@@ -34,9 +34,9 @@ jobs:
     - stage: Tests
       name: test set 1, program batch 1
       env:
-        - TEST_SET=1
+        - TEST_SET=1 PROGRAMS="test_array test_branch test_branching test_comparison"
       install: skip
-      script: .ci/test-programs-batch-1.sh
+      script: .ci/test-programs.sh
     - stage: Documentation
       install: skip
       script: docker run --rm $DOCKER_USERNAME/scale-mamba:$COMMIT make doc
