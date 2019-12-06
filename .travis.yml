@@ -35,14 +35,14 @@ jobs:
     - stage: Tests
       name: test set 1, program batch 1
       env:
-        - PROGRAMS="test_array test_branch test_branching test_comparison"
+        - PROGRAMS="test_array test_branch test_branching test_comparison test_empty_tape test_flex test_float test_floatingpoint"
       install: skip
       script: .ci/test-programs.sh
-    - name: test set 1, program batch 2
-      env:
-        - PROGRAMS="test_empty_tape test_flex test_float test_floatingpoint"
-      install: skip
-      script: .ci/test-programs.sh
+      #- name: test set 1, program batch 2
+      #  env:
+      #    - PROGRAMS="test_empty_tape test_flex test_float test_floatingpoint"
+      #  install: skip
+      #  script: .ci/test-programs.sh
     - name: test set 1, program batch 3
       env:
         - PROGRAMS="test_float_sorting test_float_vector test_function"
